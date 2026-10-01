@@ -192,7 +192,14 @@ export default function App() {
               <p className="meta">
                 {current.trim} · {miles(current.miles)} · {current.city} · {current.drive}
               </p>
-              <p className="why">{current.why}</p>
+              <div className="flag green">
+                <b>Green flag</b>
+                <p>{current.greenFlag}</p>
+              </div>
+              <div className="flag red">
+                <b>Red flag</b>
+                <p>{current.redFlag}</p>
+              </div>
               <button
                 type="button"
                 className="details"
@@ -331,6 +338,8 @@ function CarSheet({ car, onClose }: { car: Car; onClose: () => void }) {
           <button type="button" onClick={onClose} aria-label="Close">Close</button>
         </header>
         <p className="sheet-price">{money(car.price)}{car.priceNote ? ` · ${car.priceNote}` : ''}</p>
+        <div className="flag green"><b>Green flag</b><p>{car.greenFlag}</p></div>
+        <div className="flag red"><b>Red flag</b><p>{car.redFlag}</p></div>
         <dl>
           <div><dt>Miles</dt><dd>{miles(car.miles)}</dd></div>
           <div><dt>Where</dt><dd>{car.city}, {car.drive}</dd></div>

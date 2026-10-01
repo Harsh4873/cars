@@ -253,6 +253,28 @@ button, a { font: inherit; }
   overflow: hidden;
 }
 
+.flag {
+  margin-top: 8px;
+  border-radius: 14px;
+  padding: 8px 10px;
+}
+.flag b {
+  display: block;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.flag p {
+  margin: 2px 0 0;
+  font-size: 14px;
+  line-height: 1.35;
+  color: #1c1a1e;
+}
+.flag.green { background: #e7f8ee; }
+.flag.green b { color: #0c7a45; }
+.flag.red { background: #ffe8ee; }
+.flag.red b { color: #c0183a; }
+
 .details {
   margin-top: 10px;
   border: 0;
