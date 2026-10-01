@@ -126,8 +126,8 @@ export default function App() {
           </div>
         ) : null}
         <div className="top-actions">
-          <button type="button" className={board ? 'text-button on' : 'text-button'} onClick={() => { setBoard((open) => !open); setShowLikes(false); }}>
-            Board
+          <button type="button" className="text-button" onClick={() => { setBoard((open) => !open); setShowLikes(false); }}>
+            {board ? 'Swipe' : 'Board'}
           </button>
           <button type="button" className="text-button" onClick={() => setSheet('guide')}>
             Guide

@@ -53,6 +53,7 @@ describe('swipe deck', () => {
     const view = renderApp();
     const board = [...view.el.querySelectorAll('button')].find((button) => button.textContent === 'Board');
     act(() => board?.click());
+    expect(view.el.textContent).toContain('Swipe');
     const input = view.el.querySelector<HTMLInputElement>('[aria-label="Search cars"]');
     expect(input).toBeTruthy();
     const setter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')?.set;
