@@ -336,10 +336,10 @@ function CarSheet({ car, onClose }: { car: Car; onClose: () => void }) {
           <div><dt>Where</dt><dd>{car.city}, {car.drive} from College Station</dd></div>
           <div><dt>Owners</dt><dd>{car.owners}</dd></div>
           <div><dt>Title</dt><dd>{car.title}</dd></div>
-          <div><dt>Seller</dt><dd>{car.seller}</dd></div>
+          <div><dt>Seller</dt><dd>{car.dealer}</dd></div>
+          <div><dt>VIN</dt><dd>{car.vin}</dd></div>
           <div><dt>Color</dt><dd>{car.color}</dd></div>
           <div><dt>Drivetrain</dt><dd>{car.drivetrain}</dd></div>
-          <div><dt>Fuel</dt><dd>{car.mpg}</dd></div>
         </dl>
         <h3>Complaint year</h3>
         <p><span className={`verdict verdict-${YEAR_RECORDS[car.id]?.grade ?? 'typical'}`}>{YEAR_RECORDS[car.id]?.grade}</span></p>

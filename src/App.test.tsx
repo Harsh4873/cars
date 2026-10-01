@@ -25,20 +25,20 @@ describe('swipe deck', () => {
     localStorage.clear();
   });
 
-  it('shows the Accord and saves a match', () => {
+  it('shows the Corolla and saves a match', () => {
     const view = renderApp();
-    expect(view.el.textContent).toContain('2012 Honda Accord');
-    expect(view.el.textContent).toContain('$7,500');
-    expect(view.el.textContent).toContain('68,600 mi');
+    expect(view.el.textContent).toContain('2010 Toyota Corolla');
+    expect(view.el.textContent).toContain('$5,995');
+    expect(view.el.textContent).toContain('115,289 mi');
 
     const like = view.el.querySelector<HTMLButtonElement>('[aria-label="Like"]');
     act(() => like?.click());
-    expect(view.el.textContent).toContain('2007 Honda CR-V');
+    expect(view.el.textContent).toContain('2012 Honda Civic');
 
     const matches = view.el.querySelector<HTMLButtonElement>('[aria-label="Matches"]');
     act(() => matches?.click());
-    expect(view.el.textContent).toContain('2012 Honda Accord');
-    expect(view.el.textContent).toContain('Houston');
+    expect(view.el.textContent).toContain('2010 Toyota Corolla');
+    expect(view.el.textContent).toContain('Spring');
 
     const details = view.el.querySelector<HTMLButtonElement>('li button');
     act(() => details?.click());
