@@ -2,4 +2,4 @@
 
 A swipe deck of used cars in the $5,000 to $8,000 range, published at `https://harsh.bet/cars/`.
 
-The shortlist is Toyota and Honda dealer listings from CarGurus, checked on September 30, 2026, within about 180 miles of College Station. Each card has the asking price, miles, ownership, title notes, the seller's claims, and the known weak spots for that model. Passing and matching stay in this browser.
+The deck is dealer listings from CarGurus and Allen Honda, checked on September 30, 2026. Every car is about 30 minutes from Texas A&M, about 30 minutes from Seven Lakes, or in Houston. Each card has the asking price, miles, ownership, title notes, the seller's claims, and the known weak spots for that model. Passing and matching stay in this browser.
