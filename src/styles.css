@@ -1,0 +1,396 @@
+:root {
+  color-scheme: dark;
+  --bg: #111111;
+  --card: #ffffff;
+  --ink: #1a1a1a;
+  --muted: #6b6570;
+  --pink: #fd5068;
+  --green: #21d07a;
+  --line: #ece7ef;
+  font-family: "Avenir Next", "Segoe UI", sans-serif;
+}
+
+* { box-sizing: border-box; }
+
+html, body, #root {
+  margin: 0;
+  min-height: 100%;
+  background: var(--bg);
+  color: white;
+  overflow-x: clip;
+}
+
+button, a { font: inherit; }
+
+.app {
+  width: 100%;
+  max-width: 100%;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: calc(12px + env(safe-area-inset-top)) 16px calc(18px + env(safe-area-inset-bottom));
+}
+
+.top, .stage, .likes, .done {
+  width: min(420px, 100%);
+  min-width: 0;
+}
+
+.wordmark {
+  border: 0;
+  background: transparent;
+  color: white;
+  font-size: 28px;
+  font-weight: 800;
+  letter-spacing: -0.05em;
+  padding: 0;
+  cursor: pointer;
+}
+
+.wordmark::after {
+  content: "";
+  display: block;
+  height: 4px;
+  width: 42px;
+  border-radius: 99px;
+  background: linear-gradient(90deg, #ff6036, var(--pink));
+}
+
+.top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 12px;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+}
+
+.top-actions { display: flex; gap: 8px; margin-left: auto; }
+
+.text-button, .likes-head button, .ghost {
+  border: 0;
+  background: transparent;
+  color: #f3eef2;
+  cursor: pointer;
+}
+
+.text-button {
+  border: 1px solid #3a3a3a;
+  border-radius: 999px;
+  padding: 8px 12px;
+  font-size: 13px;
+}
+
+.stage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+}
+
+.lede {
+  margin: 0 0 10px;
+  color: #b9b3bc;
+  font-size: 13px;
+  line-height: 1.35;
+  text-align: center;
+  max-width: 100%;
+}
+
+.card {
+  width: 100%;
+  min-width: 0;
+  height: min(640px, calc(100dvh - 210px));
+  min-height: 460px;
+  background: var(--card);
+  color: var(--ink);
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.35);
+  display: flex;
+  flex-direction: column;
+  touch-action: none;
+  user-select: none;
+  position: relative;
+  transition: transform 0.28s ease;
+}
+
+.card.dragging { transition: none; }
+
+.card-back {
+  position: absolute;
+  top: 38px;
+  height: min(640px, calc(100dvh - 210px));
+  transform: scale(0.96) translateY(10px);
+  z-index: 0;
+  pointer-events: none;
+}
+
+.stage .card:not(.card-back) { z-index: 1; }
+
+.photo {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 0;
+  min-width: 0;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 30% 20%, #ffd0d6, transparent 40%),
+    linear-gradient(160deg, #2b2b2b, #111);
+}
+
+.photo img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  pointer-events: none;
+}
+
+.photo-missing::after {
+  content: "Photo left with the ad";
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: white;
+  font-weight: 700;
+}
+
+.stamp {
+  position: absolute;
+  top: 24px;
+  border: 4px solid;
+  border-radius: 8px;
+  padding: 4px 10px;
+  font-size: 34px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.stamp-like { left: 18px; color: var(--green); border-color: var(--green); transform: rotate(-12deg); }
+.stamp-nope { right: 18px; color: var(--pink); border-color: var(--pink); transform: rotate(12deg); }
+
+.dots {
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  top: 10px;
+  display: flex;
+  gap: 4px;
+}
+
+.dot {
+  flex: 1;
+  height: 4px;
+  border: 0;
+  border-radius: 99px;
+  background: rgba(255, 255, 255, 0.45);
+  padding: 0;
+  cursor: pointer;
+}
+
+.dot.on { background: white; }
+
+.bio { padding: 14px 16px 16px; }
+
+.bio-row, .likes-head, .sheet header {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
+
+.bio h1 { flex: 1 1 11rem; min-width: 0; }
+
+.bio h1, .likes h1, .done h1 {
+  margin: 0;
+  font-size: 26px;
+  letter-spacing: -0.04em;
+  line-height: 1.05;
+}
+
+.verdict {
+  display: inline-block;
+  border-radius: 999px;
+  padding: 5px 9px;
+  font-size: 12px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.verdict-best-bet { background: #e8fff3; color: #0d7a45; }
+.verdict-strong { background: #e7f0ff; color: #1d4e89; }
+.verdict-first-owner { background: #fff4d8; color: #8a5a00; }
+.verdict-check-first { background: #ffe8ee; color: #a11d3a; }
+
+.price {
+  margin: 6px 0 0;
+  font-size: 22px;
+  font-weight: 800;
+}
+
+.price small, .meta, .why, .sheet p, .sheet li, .fine, .empty, .done p {
+  font-weight: 500;
+}
+
+.price small { font-size: 13px; color: var(--muted); }
+
+.meta, .why { margin: 6px 0 0; color: #3d3940; font-size: 14px; line-height: 1.35; }
+
+.why {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.details {
+  margin-top: 10px;
+  border: 0;
+  background: transparent;
+  color: var(--pink);
+  font-weight: 700;
+  padding: 0;
+  cursor: pointer;
+}
+
+.actions {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 18px;
+  margin-top: 16px;
+}
+
+.round {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  border: 0;
+  background: white;
+  font-size: 28px;
+  cursor: pointer;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+}
+
+.round.nope { color: var(--pink); }
+.round.like { color: var(--green); width: 74px; height: 74px; font-size: 32px; }
+.round.undo { width: 46px; height: 46px; font-size: 20px; color: #f5a623; }
+.round:disabled { opacity: 0.35; cursor: default; }
+
+.likes, .done {
+  max-width: 100%;
+}
+
+.likes h1, .done h1 { color: white; }
+
+.likes-head { margin: 12px 0; }
+.likes-head button, .ghost { color: #ffd0d8; }
+
+.likes ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+
+.likes li button {
+  width: 100%;
+  display: flex;
+  gap: 12px;
+  text-align: left;
+  border: 0;
+  border-radius: 14px;
+  background: white;
+  color: var(--ink);
+  padding: 8px;
+  cursor: pointer;
+}
+
+.likes img {
+  width: 92px;
+  height: 72px;
+  object-fit: cover;
+  border-radius: 10px;
+  background: #222;
+}
+
+.likes strong, .likes em { display: block; }
+.likes em { font-style: normal; color: var(--muted); margin-top: 4px; font-size: 13px; }
+
+.done { padding-top: 18vh; }
+.done p { color: #d7d0d8; line-height: 1.45; }
+
+.solid, .ghost, .listing {
+  display: inline-flex;
+  margin-right: 8px;
+  margin-top: 8px;
+  border-radius: 999px;
+  padding: 12px 16px;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.solid, .listing {
+  background: linear-gradient(90deg, #ff6036, var(--pink));
+  color: white;
+  border: 0;
+  font-weight: 700;
+}
+
+.ghost { border: 1px solid #444; }
+
+.sheet-wrap {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  z-index: 5;
+}
+
+.sheet {
+  width: min(560px, 100%);
+  max-height: min(86dvh, 820px);
+  overflow: auto;
+  background: white;
+  color: var(--ink);
+  border-radius: 18px 18px 0 0;
+  padding: 18px 18px calc(22px + env(safe-area-inset-bottom));
+}
+
+.sheet h2 { margin: 0; font-size: 22px; letter-spacing: -0.03em; }
+.sheet h3 { margin: 18px 0 6px; font-size: 15px; }
+.sheet header button {
+  border: 0;
+  background: #f4f1f5;
+  border-radius: 999px;
+  padding: 8px 12px;
+  cursor: pointer;
+}
+
+.sheet-kicker, .sheet-price { color: #5c5662; }
+.sheet-price { font-size: 20px; font-weight: 800; color: var(--ink); }
+
+.sheet dl { margin: 12px 0 0; }
+.sheet dl div {
+  display: grid;
+  grid-template-columns: 96px 1fr;
+  gap: 8px;
+  padding: 8px 0;
+  border-top: 1px solid var(--line);
+}
+.sheet dt { color: var(--muted); }
+.sheet dd { margin: 0; }
+.sheet ul { margin: 0; padding-left: 18px; }
+.sheet li { margin: 6px 0; line-height: 1.4; }
+.fine { color: var(--muted); font-size: 12px; }
+
+@media (max-width: 420px) {
+  .bio h1 { font-size: 22px; }
+  .top-actions .text-button { padding: 7px 10px; font-size: 12px; }
+  .app { padding-left: 12px; padding-right: 12px; }
+}
