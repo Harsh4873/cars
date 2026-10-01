@@ -48,4 +48,20 @@ describe('swipe deck', () => {
     expect(view.el.textContent).toContain('Known weak spots');
     view.cleanup();
   });
+
+  it('filters the board from the search box', () => {
+    const view = renderApp();
+    const board = [...view.el.querySelectorAll('button')].find((button) => button.textContent === 'Board');
+    act(() => board?.click());
+    const input = view.el.querySelector<HTMLInputElement>('[aria-label="Search cars"]');
+    expect(input).toBeTruthy();
+    const setter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')?.set;
+    act(() => {
+      setter?.call(input, 'zzzz-no-match');
+      input?.dispatchEvent(new Event('input', { bubbles: true }));
+    });
+    expect(view.el.textContent).toContain('No cars match');
+    expect(view.el.textContent).toContain('0 of');
+    view.cleanup();
+  });
 });

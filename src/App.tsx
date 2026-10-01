@@ -10,6 +10,7 @@ import {
   type Decision,
 } from './deck';
 import { useCarsSync } from './useCarsSync';
+import { filterBoard, makesIn, type BoardQuery, type BoardSort, type Place } from './boardFilter';
 
 const ORDER = CARS.map((car) => car.id);
 const BY_ID = new Map(CARS.map((car) => [car.id, car]));
@@ -266,20 +267,60 @@ function slug(verdict: string): string {
 }
 
 function Board({ cars, onOpen }: { cars: Car[]; onOpen: (car: Car) => void }) {
-  const [grade, setGrade] = useState<YearGrade | 'all'>('all');
-  const shown = cars.filter((car) => grade === 'all' || YEAR_RECORDS[car.id]?.grade === grade);
+  const [query, setQuery] = useState<BoardQuery>({
+    text: '',
+    make: '',
+    place: 'all',
+    grade: 'all',
+    sort: 'deck',
+  });
+  const shown = filterBoard(cars, query);
+  const makes = makesIn(cars);
+  const filtering = query.text !== '' || query.make !== '' || query.place !== 'all' || query.grade !== 'all' || query.sort !== 'deck';
+  const set = (patch: Partial<BoardQuery>) => setQuery((current) => ({ ...current, ...patch }));
   return (
     <main className="board">
-      <p className="lede">
-        Complaint years, borrowed from the Ontario carbuyer check. Their Canadian prices are not used here.
-      </p>
-      <div className="filters" role="group" aria-label="Filter by complaint year">
-        {(['all', 'better', 'typical', 'worse'] as const).map((key) => (
-          <button key={key} type="button" className={grade === key ? 'text-button on' : 'text-button'} onClick={() => setGrade(key)}>
-            {key}
+      <p className="lede">{shown.length} of {cars.length} cars</p>
+      <div className="board-tools">
+        <input
+          className="board-search"
+          aria-label="Search cars"
+          placeholder="Search make, model, city, dealer, truck"
+          value={query.text}
+          onChange={(event) => set({ text: event.target.value })}
+        />
+        <select className="board-select" aria-label="Filter by make" value={query.make} onChange={(event) => set({ make: event.target.value })}>
+          <option value="">Every make</option>
+          {makes.map((make) => <option key={make} value={make}>{make}</option>)}
+        </select>
+        <select className="board-select" aria-label="Sort cars" value={query.sort} onChange={(event) => set({ sort: event.target.value as BoardSort })}>
+          <option value="deck">Listed order</option>
+          <option value="price">Lowest price</option>
+          <option value="miles">Lowest miles</option>
+          <option value="newest">Newest year</option>
+        </select>
+      </div>
+      <div className="filters" role="group" aria-label="Filter by place">
+        {([
+          ['all', 'Everywhere'],
+          ['campus', 'Texas A&M'],
+          ['seven-lakes', 'Seven Lakes'],
+          ['houston', 'Houston'],
+        ] as const).map(([place, label]) => (
+          <button key={place} type="button" className={query.place === place ? 'text-button on' : 'text-button'} onClick={() => set({ place: place as Place })}>
+            {label}
           </button>
         ))}
       </div>
+      <div className="filters" role="group" aria-label="Filter by complaint year">
+        {(['all', 'better', 'typical', 'worse'] as const).map((key) => (
+          <button key={key} type="button" className={query.grade === key ? 'text-button on' : 'text-button'} onClick={() => set({ grade: key as YearGrade | 'all' })}>
+            {key === 'all' ? 'Any record' : key}
+          </button>
+        ))}
+        {filtering ? <button type="button" className="text-button" onClick={() => setQuery({ text: '', make: '', place: 'all', grade: 'all', sort: 'deck' })}>Clear</button> : null}
+      </div>
+      {shown.length === 0 ? <p className="empty">No cars match. Clear the search.</p> : null}
       <ul>
         {shown.map((car) => {
           const record = YEAR_RECORDS[car.id];
