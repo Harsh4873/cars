@@ -20,10 +20,11 @@ describe('shortlist', () => {
     }
   });
 
-  it('leads with the Spring Corolla and does not paste phone numbers', () => {
-    expect(CARS[0]?.model).toBe('Corolla');
-    expect(CARS[0]?.price).toBe(5995);
-    expect(CARS[0]?.miles).toBe(115289);
+  it('leads with the Katy Civic and does not paste phone numbers', () => {
+    expect(CARS[0]?.city).toBe('Katy, TX');
+    expect(CARS[0]?.model).toBe('Civic');
+    expect(CARS[0]?.price).toBe(7673);
+    expect(CARS[0]?.miles).toBe(126201);
     const blob = JSON.stringify({ CARS, MARKET_NOTES });
     expect(blob).not.toMatch(phone);
     expect(blob).not.toContain('\u2014');
@@ -35,16 +36,18 @@ describe('shortlist', () => {
       expect(record?.note.length).toBeGreaterThan(20);
       expect(['better', 'typical', 'worse']).toContain(record?.grade);
     }
-    expect(YEAR_RECORDS['camry-2008-nederland']?.grade).toBe('worse');
-    expect(YEAR_RECORDS['accord-2012-spring']?.grade).toBe('better');
+    expect(YEAR_RECORDS['camry-2009-houston']?.grade).toBe('worse');
+    expect(YEAR_RECORDS['accord-2008-houston']?.grade).toBe('better');
   });
 
   it('only keeps the reliable nameplates', () => {
     const allowed = new Set(['Honda', 'Toyota']);
     const models = new Set(['Accord', 'Civic', 'Fit', 'CR-V', 'Camry', 'Corolla', 'RAV4']);
+    const near = ['Katy, TX', 'College Station, TX', 'Sugar Land, TX', 'Richmond, TX', 'Rosenberg, TX', 'Brookshire, TX', 'Houston, TX'];
     for (const car of CARS) {
       expect(allowed.has(car.make)).toBe(true);
       expect(models.has(car.model)).toBe(true);
+      expect(near).toContain(car.city);
     }
   });
 });

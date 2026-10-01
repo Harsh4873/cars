@@ -333,7 +333,7 @@ function CarSheet({ car, onClose }: { car: Car; onClose: () => void }) {
         <p className="sheet-price">{money(car.price)}{car.priceNote ? ` · ${car.priceNote}` : ''}</p>
         <dl>
           <div><dt>Miles</dt><dd>{miles(car.miles)}</dd></div>
-          <div><dt>Where</dt><dd>{car.city}, {car.drive} from College Station</dd></div>
+          <div><dt>Where</dt><dd>{car.city}, {car.drive}</dd></div>
           <div><dt>Owners</dt><dd>{car.owners}</dd></div>
           <div><dt>Title</dt><dd>{car.title}</dd></div>
           <div><dt>Seller</dt><dd>{car.dealer}</dd></div>
