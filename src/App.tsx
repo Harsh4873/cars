@@ -155,6 +155,24 @@ export default function App() {
             onPointerCancel={onPointerUp}
           >
             <div className="photo">
+              {current.photos.length > 1 ? (
+                <>
+                  <button
+                    type="button"
+                    className="photo-nav left"
+                    aria-label="Previous photo"
+                    onPointerDown={(event) => event.stopPropagation()}
+                    onClick={() => setPhoto((index) => (index - 1 + current.photos.length) % current.photos.length)}
+                  />
+                  <button
+                    type="button"
+                    className="photo-nav right"
+                    aria-label="Next photo"
+                    onPointerDown={(event) => event.stopPropagation()}
+                    onClick={() => setPhoto((index) => (index + 1) % current.photos.length)}
+                  />
+                </>
+              ) : null}
               <img
                 key={current.photos[photo]}
                 src={current.photos[photo]}

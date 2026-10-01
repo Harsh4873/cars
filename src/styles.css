@@ -140,6 +140,19 @@ button, a { font: inherit; }
     linear-gradient(160deg, #2b2b2b, #111);
 }
 
+.photo-nav {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 34%;
+  z-index: 2;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+.photo-nav.left { left: 0; }
+.photo-nav.right { right: 0; }
+
 .photo img {
   position: absolute;
   inset: 0;

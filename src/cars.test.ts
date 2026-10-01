@@ -13,6 +13,7 @@ describe('shortlist', () => {
       expect(car.dealer.toLowerCase()).not.toContain('cash only');
       expect(car.dealer.toLowerCase()).not.toContain('financing');
       expect(car.photos.length).toBeGreaterThan(0);
+      expect(car.photos.length).toBeLessThanOrEqual(8);
       expect(
         car.listingUrl.startsWith('https://www.cargurus.com/') ||
         car.listingUrl.startsWith('https://www.allenhonda.com/')
@@ -27,6 +28,7 @@ describe('shortlist', () => {
 
   it('puts a green flag and a red flag on every card', () => {
     expect(CARS.length).toBeGreaterThanOrEqual(100);
+    expect(CARS.filter((car) => car.photos.length > 1).length).toBeGreaterThan(80);
     for (const car of CARS) {
       expect(car.greenFlag.length).toBeGreaterThan(20);
       expect(car.redFlag.length).toBeGreaterThan(20);
