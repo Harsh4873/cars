@@ -242,6 +242,7 @@ button, a { font: inherit; }
 .verdict-strong, .verdict-typical { background: #e7f0ff; color: #1d4e89; }
 .verdict-first-owner { background: #fff4d8; color: #8a5a00; }
 .verdict-check-first, .verdict-worse { background: #ffe8ee; color: #a11d3a; }
+.verdict-on-campus { background: #efe7ff; color: #5b3d8a; }
 
 .text-button.on { background: white; color: #111; border-color: white; }
 
@@ -492,3 +493,76 @@ button, a { font: inherit; }
 .sync-button:hover { border-color: var(--pink); }
 
 .sync-message { width: min(420px, 100%); margin: 0 0 10px; color: #ffbd99; font-size: 12px; line-height: 1.35; }
+
+@media (min-width: 960px) {
+  .app {
+    padding-left: 32px;
+    padding-right: 32px;
+    background:
+      radial-gradient(ellipse at 50% -10%, #3a242c 0%, transparent 46%),
+      var(--bg);
+  }
+
+  .top,
+  .stage,
+  .likes,
+  .done,
+  .board,
+  .sync-message {
+    width: min(1080px, 100%);
+  }
+
+  .top { margin-bottom: 14px; }
+
+  .lede { font-size: 14px; margin-bottom: 14px; }
+
+  .card {
+    flex-direction: row;
+    height: min(740px, calc(100dvh - 168px));
+    min-height: 0;
+    border-radius: 24px;
+  }
+
+  .card-back {
+    top: 22px;
+    height: min(740px, calc(100dvh - 168px));
+    min-height: 0;
+  }
+
+  .photo { flex: 1.2 1 0; }
+
+  .bio {
+    flex: 0.9 1 320px;
+    max-width: 440px;
+    overflow: auto;
+    padding: 28px 28px 22px;
+  }
+
+  .bio h1 { font-size: 36px; }
+  .price { font-size: 28px; }
+  .meta { font-size: 15px; }
+  .flag { margin-top: 12px; padding: 12px 14px; }
+  .flag p { font-size: 15px; }
+  .details { margin-top: auto; padding-top: 16px; font-size: 15px; }
+
+  .actions { margin-top: 22px; gap: 22px; }
+
+  .sheet-wrap {
+    align-items: center;
+    padding: 40px 24px;
+  }
+
+  .sheet {
+    width: min(760px, 100%);
+    border-radius: 22px;
+    max-height: min(86dvh, 880px);
+  }
+
+  .likes ul,
+  .board ul {
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+
+  .board li button { min-height: 96px; }
+}
