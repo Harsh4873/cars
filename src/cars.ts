@@ -26,6 +26,65 @@ export type Car = {
   check: string[];
 };
 
+export type YearGrade = 'better' | 'typical' | 'worse';
+
+export type YearRecord = {
+  grade: YearGrade;
+  note: string;
+};
+
+/** Complaint-year check, same idea as carbuyer-ontario. Not a Texas price. */
+export const YEAR_RECORDS: Record<string, YearRecord> = {
+  'accord-2012-houston': {
+    grade: 'better',
+    note: 'Fewer owner complaints than the Accord years around it. The common theme is seats, not the engine.',
+  },
+  'crv-2007-seabrook': {
+    grade: 'typical',
+    note: 'Complaint volume is normal for this CR-V. The common theme is airbags, the industry recall, not the 2.4 engine.',
+  },
+  'camry-2010-spring': {
+    grade: 'typical',
+    note: 'Normal complaint volume. The common theme is speed control. This is still the 2.5L that replaced the oil-burning 2.4.',
+  },
+  'civic-2014-dallas': {
+    grade: 'typical',
+    note: 'Normal complaint volume, and the common theme is the powertrain. This LX kept a regular automatic.',
+  },
+  'civic-2008-spring': {
+    grade: 'typical',
+    note: 'Complaint volume is normal for a Civic of this era. The common theme is airbags.',
+  },
+  'rav4-2012-flower-mound': {
+    grade: 'typical',
+    note: 'Normal complaint volume. The common theme is the wipers, not the V6.',
+  },
+  'camry-2007-austin': {
+    grade: 'worse',
+    note: 'About three times the complaints of nearby Camry years. The common theme is brakes. This is also the oil-burning 2.4.',
+  },
+  'accord-2011-pflugerville': {
+    grade: 'better',
+    note: 'Fewer complaints than nearby Accord years. The common theme is airbags, not a special engine failure.',
+  },
+  'fit-2013-grand-prairie': {
+    grade: 'typical',
+    note: 'Normal complaint volume for a Fit. The common theme is airbags.',
+  },
+  'camry-2014-dallas': {
+    grade: 'better',
+    note: 'Far fewer complaints than nearby Camry years. The common theme is electrical, and the count is small.',
+  },
+  'civic-2014-frisco': {
+    grade: 'typical',
+    note: 'Normal complaint volume, and the common theme is the powertrain. This EX-L is the one with the CVT.',
+  },
+  'fit-2009-fort-worth': {
+    grade: 'typical',
+    note: 'Normal complaint volume for a Fit. The common theme is airbags.',
+  },
+};
+
 export const CHECKED_ON = 'September 30, 2026';
 
 export const MARKET_NOTES = [
@@ -33,6 +92,7 @@ export const MARKET_NOTES = [
   'The models that keep showing up as the ones that still run are Toyota Corolla, Toyota Camry from 2010 on (the 2.5L), Honda Civic, Honda Accord with the 2.4 four-cylinder, Honda Fit, and Honda CR-V. A Mazda3 is fine too. This deck is only cars from that group.',
   'Skip these in this budget even when the price looks friendly: Nissan Altima, Rogue, and Maxima (their CVT transmissions fail), Ford Focus and Fiesta automatics (the dual-clutch transmission), Ford Escape with the small turbo (coolant can leak into the engine), Jeep Patriot, and Dodge Journey. Those were the cars actually posted in College Station today.',
   'No used car is guaranteed. A pre-purchase inspection is the guarantee, about $150 to $200 at an independent shop, before you pay. "Clean title" in an ad is the seller talking. Ask for the VIN and read a history report yourself. Houston-area cars also need a flood sniff: wet carpets, a water line in the spare well, a musty trunk.',
+  'The Board borrows one check from carbuyer-ontario, a Hack the North project: owner complaints for that model year versus the years around it. Their prices are Ontario ads in Canadian dollars, usually at much higher kilometers, so they are not used as a Texas bargain score.',
 ];
 
 export const CARS: Car[] = [

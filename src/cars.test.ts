@@ -1,4 +1,4 @@
-import { CARS, MARKET_NOTES } from './cars';
+import { CARS, MARKET_NOTES, YEAR_RECORDS } from './cars';
 
 const phone = /\b(?:\+?1[-.\s]*)?(?:\(?\d{3}\)?[-.\s]*)\d{3}[-.\s]*\d{4}\b/;
 
@@ -24,6 +24,16 @@ describe('shortlist', () => {
     const blob = JSON.stringify({ CARS, MARKET_NOTES });
     expect(blob).not.toMatch(phone);
     expect(blob).not.toContain('\u2014');
+  });
+
+  it('has a complaint-year record for every car', () => {
+    for (const car of CARS) {
+      const record = YEAR_RECORDS[car.id];
+      expect(record?.note.length).toBeGreaterThan(20);
+      expect(['better', 'typical', 'worse']).toContain(record?.grade);
+    }
+    expect(YEAR_RECORDS['camry-2007-austin']?.grade).toBe('worse');
+    expect(YEAR_RECORDS['accord-2012-houston']?.grade).toBe('better');
   });
 
   it('only keeps the reliable nameplates', () => {

@@ -43,6 +43,8 @@ describe('swipe deck', () => {
     const details = view.el.querySelector<HTMLButtonElement>('li button');
     act(() => details?.click());
     expect(view.el.textContent).toContain('Open the listing');
+    expect(view.el.textContent).toContain('Complaint year');
+    expect(view.el.textContent).toContain('better');
     expect(view.el.textContent).toContain('Known weak spots');
     view.cleanup();
   });

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type PointerEvent } from 'react';
-import { CARS, CHECKED_ON, MARKET_NOTES, type Car } from './cars';
+import { CARS, CHECKED_ON, MARKET_NOTES, YEAR_RECORDS, type Car, type YearGrade } from './cars';
 import {
   decide,
   likes,
@@ -19,6 +19,7 @@ const BY_ID = new Map(CARS.map((car) => [car.id, car]));
 export default function App() {
   const [history, setHistory] = useState<HistoryItem[]>(() => loadHistory(ORDER));
   const [showLikes, setShowLikes] = useState(false);
+  const [board, setBoard] = useState(false);
   const [sheet, setSheet] = useState<Car | 'guide' | null>(null);
   const [photo, setPhoto] = useState(0);
   const [drag, setDrag] = useState({ x: 0, y: 0, active: false });
@@ -115,14 +116,17 @@ export default function App() {
   return (
     <div className="app">
       <header className="top">
-        <button className="wordmark" type="button" onClick={() => { setShowLikes(false); setSheet(null); }}>
+        <button className="wordmark" type="button" onClick={() => { setShowLikes(false); setBoard(false); setSheet(null); }}>
           cars
         </button>
         <div className="top-actions">
+          <button type="button" className={board ? 'text-button on' : 'text-button'} onClick={() => { setBoard((open) => !open); setShowLikes(false); }}>
+            Board
+          </button>
           <button type="button" className="text-button" onClick={() => setSheet('guide')}>
             Guide
           </button>
-          <button type="button" className="text-button" aria-label="Matches" onClick={() => setShowLikes(true)}>
+          <button type="button" className="text-button" aria-label="Matches" onClick={() => { setShowLikes(true); setBoard(false); }}>
             Saved{saved.length > 0 ? ` ${saved.length}` : ''}
           </button>
         </div>
@@ -134,6 +138,8 @@ export default function App() {
           onOpen={(car) => setSheet(car)}
           onBack={() => setShowLikes(false)}
         />
+      ) : board ? (
+        <Board cars={CARS} onOpen={(car) => setSheet(car)} />
       ) : current ? (
         <main className="stage">
           <p className="lede">
@@ -228,6 +234,43 @@ function slug(verdict: string): string {
   return verdict.toLowerCase().replace(/\s+/g, '-');
 }
 
+function Board({ cars, onOpen }: { cars: Car[]; onOpen: (car: Car) => void }) {
+  const [grade, setGrade] = useState<YearGrade | 'all'>('all');
+  const shown = cars.filter((car) => grade === 'all' || YEAR_RECORDS[car.id]?.grade === grade);
+  return (
+    <main className="board">
+      <p className="lede">
+        Complaint years, borrowed from the Ontario carbuyer check. Their Canadian prices are not used here.
+      </p>
+      <div className="filters" role="group" aria-label="Filter by complaint year">
+        {(['all', 'better', 'typical', 'worse'] as const).map((key) => (
+          <button key={key} type="button" className={grade === key ? 'text-button on' : 'text-button'} onClick={() => setGrade(key)}>
+            {key}
+          </button>
+        ))}
+      </div>
+      <ul>
+        {shown.map((car) => {
+          const record = YEAR_RECORDS[car.id];
+          return (
+            <li key={car.id}>
+              <button type="button" onClick={() => onOpen(car)}>
+                <img src={car.photos[0]} alt="" />
+                <span>
+                  <strong>{car.year} {car.make} {car.model} {car.trim}</strong>
+                  <em>{money(car.price)} · {miles(car.miles)} · {car.city}</em>
+                  <em className="record-note">{record?.note}</em>
+                </span>
+                <b className={`verdict verdict-${record?.grade ?? 'typical'}`}>{record?.grade}</b>
+              </button>
+            </li>
+          );
+        })}
+      </ul>
+    </main>
+  );
+}
+
 function Likes({ cars, onOpen, onBack }: { cars: Car[]; onOpen: (car: Car) => void; onBack: () => void }) {
   return (
     <main className="likes">
@@ -298,6 +341,9 @@ function CarSheet({ car, onClose }: { car: Car; onClose: () => void }) {
           <div><dt>Drivetrain</dt><dd>{car.drivetrain}</dd></div>
           <div><dt>Fuel</dt><dd>{car.mpg}</dd></div>
         </dl>
+        <h3>Complaint year</h3>
+        <p><span className={`verdict verdict-${YEAR_RECORDS[car.id]?.grade ?? 'typical'}`}>{YEAR_RECORDS[car.id]?.grade}</span></p>
+        <p>{YEAR_RECORDS[car.id]?.note}</p>
         <h3>Why it is here</h3>
         <p>{car.why}</p>
         <h3>What the seller said</h3>
