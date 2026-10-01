@@ -145,8 +145,11 @@ export function useCarsSync(knownIds: readonly string[]) {
         vaultId.current = membership.vaultId;
         unsubscribeHistory = onSnapshot(carsDocument(services.db, membership.vaultId), { includeMetadataChanges: true }, (snapshot) => {
           if (disposed || activeGeneration !== generation.current) return;
-          if (snapshot.metadata.fromCache || snapshot.metadata.hasPendingWrites) {
-            setStatus(navigator.onLine ? snapshot.metadata.hasPendingWrites ? 'syncing' : 'connecting' : 'offline');
+          // An empty cache snapshot is not proof the account has no history.
+          // A cache snapshot that already has the document is real data and
+          // should show up before the server round-trip finishes.
+          if (snapshot.metadata.fromCache && !snapshot.exists()) {
+            setStatus(navigator.onLine ? 'connecting' : 'offline');
             return;
           }
           if (snapshot.exists()) {
