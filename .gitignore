@@ -3,3 +3,5 @@ dist/
 .DS_Store
 coverage/
 *-debug.log
+.env.local
+.env*.local

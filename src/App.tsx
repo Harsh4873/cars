@@ -3,21 +3,19 @@ import { CARS, CHECKED_ON, MARKET_NOTES, YEAR_RECORDS, type Car, type YearGrade 
 import {
   decide,
   likes,
-  loadHistory,
   miles,
   money,
   remainingIds,
-  saveHistory,
   undo,
   type Decision,
-  type HistoryItem,
 } from './deck';
+import { useCarsSync } from './useCarsSync';
 
 const ORDER = CARS.map((car) => car.id);
 const BY_ID = new Map(CARS.map((car) => [car.id, car]));
 
 export default function App() {
-  const [history, setHistory] = useState<HistoryItem[]>(() => loadHistory(ORDER));
+  const { history, updateHistory, status, message, user, signIn, signOut, configured } = useCarsSync(ORDER);
   const [showLikes, setShowLikes] = useState(false);
   const [board, setBoard] = useState(false);
   const [sheet, setSheet] = useState<Car | 'guide' | null>(null);
@@ -35,17 +33,13 @@ export default function App() {
   currentId.current = current?.id;
 
   useEffect(() => {
-    saveHistory(history);
-  }, [history]);
-
-  useEffect(() => {
     setPhoto(0);
   }, [current?.id]);
 
   function commit(decision: Decision) {
     const id = currentId.current;
     if (!id) return;
-    setHistory((prev) => decide(prev, id, decision));
+    updateHistory((prev) => decide(prev, id, decision));
     origin.current = null;
     offset.current = { x: 0, y: 0 };
     setDrag({ x: 0, y: 0, active: false });
@@ -63,7 +57,7 @@ export default function App() {
       }
       if (event.key === 'Escape') setSheet(null);
       if (event.key === 'z' && (event.metaKey || event.ctrlKey)) {
-        setHistory((prev) => undo(prev));
+        updateHistory((prev) => undo(prev));
       }
     }
     window.addEventListener('keydown', onKey);
@@ -119,6 +113,17 @@ export default function App() {
         <button className="wordmark" type="button" onClick={() => { setShowLikes(false); setBoard(false); setSheet(null); }}>
           cars
         </button>
+        {configured ? (
+          <div className="sync-controls" aria-live="polite">
+            <span className={`sync-pill sync-${status}`} title={message}>
+              {status === 'local' ? 'Local only' : status === 'connecting' ? 'Connecting' : status === 'syncing' ? 'Syncing' : status === 'synced' ? 'Synced' : status === 'offline' ? 'Offline' : 'Sync error'}
+            </span>
+            {user ? <button type="button" className="sync-button" onClick={() => void signOut()}>Sign out</button>
+              : status !== 'error' || !message?.startsWith('Incomplete Firebase')
+                ? <button type="button" className="sync-button" onClick={() => void signIn()}>Sign in with Google</button>
+                : null}
+          </div>
+        ) : null}
         <div className="top-actions">
           <button type="button" className={board ? 'text-button on' : 'text-button'} onClick={() => { setBoard((open) => !open); setShowLikes(false); }}>
             Board
@@ -131,6 +136,7 @@ export default function App() {
           </button>
         </div>
       </header>
+      {status === 'error' && message ? <p className="sync-message" role="alert">{message}</p> : null}
 
       {showLikes ? (
         <Likes
@@ -229,7 +235,7 @@ export default function App() {
             </div>
           </article>
           <div className="actions">
-            <button type="button" className="round undo" aria-label="Undo" disabled={history.length === 0} onClick={() => setHistory((prev) => undo(prev))}>
+            <button type="button" className="round undo" aria-label="Undo" disabled={history.length === 0} onClick={() => updateHistory((prev) => undo(prev))}>
               ↩
             </button>
             <button type="button" className="round nope" aria-label="Pass" onClick={() => commit('nope')}>
@@ -245,7 +251,7 @@ export default function App() {
           saved={saved.length}
           passed={history.length - saved.length}
           onMatches={() => setShowLikes(true)}
-          onReset={() => setHistory([])}
+          onReset={() => updateHistory(() => [])}
         />
       )}
 

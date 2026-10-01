@@ -482,3 +482,13 @@ button, a { font: inherit; }
   .top-actions .text-button { padding: 7px 10px; font-size: 12px; }
   .app { padding-left: 12px; padding-right: 12px; }
 }
+
+.sync-controls { display: flex; align-items: center; gap: 7px; flex-wrap: wrap; }
+.sync-pill, .sync-button { border: 1px solid #3a3a3a; border-radius: 999px; padding: 6px 9px; font-size: 11px; color: #f3eef2; background: #222; }
+.sync-pill { white-space: nowrap; }
+.sync-synced { border-color: #29744b; color: #a3edbe; }
+.sync-offline, .sync-error { border-color: #955e44; color: #ffbd99; }
+.sync-button { cursor: pointer; background: transparent; }
+.sync-button:hover { border-color: var(--pink); }
+
+.sync-message { width: min(420px, 100%); margin: 0 0 10px; color: #ffbd99; font-size: 12px; line-height: 1.35; }
