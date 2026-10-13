@@ -1,4 +1,4 @@
-import { decide, likes, loadHistory, money, remainingIds, saveHistory, undo } from './deck';
+import { decide, forget, HISTORY_STORAGE_KEY, likes, loadHistory, money, remainingIds, saveHistory, undo } from './deck';
 
 describe('deck', () => {
   it('walks the deck and can undo', () => {
@@ -13,7 +13,18 @@ describe('deck', () => {
 
   it('does not record the same car twice', () => {
     const once = decide([], 'a', 'like');
-    expect(decide(once, 'a', 'nope')).toEqual(once);
+    expect(decide(once, 'a', 'nope')).toBe(once);
+  });
+
+  it('undo of an empty history keeps the same array', () => {
+    const empty: ReturnType<typeof decide> = [];
+    expect(undo(empty)).toBe(empty);
+  });
+
+  it('forgets one decision and leaves the others', () => {
+    const history = decide(decide([], 'a', 'like'), 'b', 'nope');
+    expect(forget(history, 'a')).toEqual([{ id: 'b', decision: 'nope' }]);
+    expect(forget(history, 'missing')).toBe(history);
   });
 
   it('formats dollars', () => {
@@ -22,10 +33,11 @@ describe('deck', () => {
 
   it('drops unknown ids from storage', () => {
     localStorage.setItem(
-      'harsh-bet-cars-v1',
+      HISTORY_STORAGE_KEY,
       JSON.stringify([
         { id: 'keep', decision: 'like' },
         { id: 'gone', decision: 'nope' },
+        { id: 'keep', decision: 'nope' },
         { id: 'keep', decision: 'maybe' },
       ]),
     );

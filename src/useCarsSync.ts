@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { onSnapshot, serverTimestamp, setDoc, type Unsubscribe } from 'firebase/firestore';
 import type { User } from 'firebase/auth';
-import { loadHistory, saveHistory, type HistoryItem } from './deck';
-import { carsDocument, chooseHistory, HISTORY_UPDATED_KEY, parseCloudHistory, type HistoryVersion } from './carsSync';
+import { HISTORY_STORAGE_KEY, loadHistory, saveHistory, type HistoryItem } from './deck';
+import { adoptPeerHistory, applyCloudHistory, carsDocument, chooseHistory, HISTORY_UPDATED_KEY, parseCloudHistory, type HistoryVersion } from './carsSync';
 import { getFirebaseServices, observeFirebaseAuth, signInToFirebaseWithGoogle, signOutOfFirebase } from './firebase';
 import { isFirebaseConfigured, isFirebaseMisconfigured, missingFirebaseConfigKeys } from './firebaseConfig';
 import { resolveOwnerVault } from './owner-vault';
@@ -45,6 +45,7 @@ function errorMessage(error: unknown): string {
   if (isOfflineError(error)) return 'Offline. Changes stay on this device and will sync when reconnected.';
   const code = error && typeof error === 'object' && 'code' in error ? String(error.code) : '';
   if (code.includes('popup-closed-by-user')) return 'Google sign-in was cancelled.';
+  if (code.includes('popup-blocked')) return 'The browser blocked Google sign-in. Allow popups for this site and try again.';
   if (code.includes('permission-denied')) return 'This account cannot access the owner vault or Cars history.';
   return error instanceof Error ? error.message : 'Cars could not sync. Local history is safe.';
 }
@@ -104,14 +105,27 @@ export function useCarsSync(knownIds: readonly string[]) {
   }, []);
 
   const updateHistory = useCallback((update: (previous: HistoryItem[]) => HistoryItem[]) => {
-    const next = update(version.current.history);
-    if (next === version.current.history) return;
-    const updatedAtMs = Math.max(Date.now(), version.current.updatedAtMs + 1, (remoteVersion.current?.updatedAtMs ?? 0) + 1);
+    const stored: HistoryVersion = {
+      history: loadHistory([...knownIds]),
+      updatedAtMs: localTimestamp(),
+      clientId,
+    };
+    const base = adoptPeerHistory(version.current, stored) ?? version.current;
+    const next = update(base.history);
+    if (next === base.history) {
+      if (base !== version.current) {
+        version.current = base;
+        setHistory(base.history);
+        scheduleWrite();
+      }
+      return;
+    }
+    const updatedAtMs = Math.max(Date.now(), base.updatedAtMs + 1, version.current.updatedAtMs + 1, (remoteVersion.current?.updatedAtMs ?? 0) + 1);
     version.current = { history: next, updatedAtMs, clientId };
     persist(version.current);
     setHistory(next);
     scheduleWrite();
-  }, [scheduleWrite]);
+  }, [knownIds, scheduleWrite]);
 
   useEffect(() => {
     if (!isFirebaseConfigured) return;
@@ -153,18 +167,20 @@ export function useCarsSync(knownIds: readonly string[]) {
             return;
           }
           if (snapshot.exists()) {
-            const remote = parseCloudHistory(snapshot.data(), knownIds);
+            const data = snapshot.data();
+            const rawCount = Array.isArray(data.history) ? data.history.length : 0;
+            const remote = parseCloudHistory(data, knownIds);
             if (!remote) {
               setStatus('error');
               setMessage('The cloud history has an invalid format. Local history is safe.');
               return;
             }
+            const applied = applyCloudHistory(version.current, remote, rawCount);
             remoteVersion.current = remote;
-            const winner = chooseHistory(version.current, remote);
-            if (winner === remote) {
-              version.current = remote;
-              persist(remote);
-              setHistory(remote.history);
+            if (applied.version !== version.current) {
+              version.current = applied.version;
+              persist(applied.version);
+              setHistory(applied.version.history);
             }
           } else {
             remoteVersion.current = null;
@@ -175,10 +191,15 @@ export function useCarsSync(knownIds: readonly string[]) {
           }
           ready.current = true;
           setMessage(undefined);
-          if (!snapshot.exists() || chooseHistory(version.current, remoteVersion.current!) === version.current
-            && (version.current.updatedAtMs !== remoteVersion.current!.updatedAtMs || version.current.clientId !== remoteVersion.current!.clientId)) {
-            setStatus('syncing');
-            window.setTimeout(scheduleWrite, 0);
+          const remoteNow = remoteVersion.current;
+          const shouldUpload = !snapshot.exists() || Boolean(remoteNow && chooseHistory(version.current, remoteNow) === version.current
+            && (version.current.updatedAtMs !== remoteNow.updatedAtMs || version.current.clientId !== remoteNow.clientId));
+          if (shouldUpload) {
+            if (!navigator.onLine) setStatus('offline');
+            else {
+              setStatus('syncing');
+              window.setTimeout(scheduleWrite, 0);
+            }
           } else setStatus('synced');
         }, (error) => {
           if (!disposed && activeGeneration === generation.current) {
@@ -217,6 +238,24 @@ export function useCarsSync(knownIds: readonly string[]) {
       window.removeEventListener('online', online);
       window.removeEventListener('offline', offline);
     };
+  }, [knownIds, scheduleWrite]);
+
+  useEffect(() => {
+    const onStorage = (event: StorageEvent) => {
+      if (event.key !== HISTORY_STORAGE_KEY && event.key !== HISTORY_UPDATED_KEY) return;
+      const stored: HistoryVersion = {
+        history: loadHistory([...knownIds]),
+        updatedAtMs: localTimestamp(),
+        clientId,
+      };
+      const next = adoptPeerHistory(version.current, stored);
+      if (!next) return;
+      version.current = next;
+      setHistory(next.history);
+      scheduleWrite();
+    };
+    window.addEventListener('storage', onStorage);
+    return () => window.removeEventListener('storage', onStorage);
   }, [knownIds, scheduleWrite]);
 
   const signIn = useCallback(async () => {

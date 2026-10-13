@@ -36,7 +36,7 @@ describe('swipe deck', () => {
     const second = view.el.querySelector('h1')?.textContent ?? '';
     expect(second).not.toBe(first);
 
-    const matches = view.el.querySelector<HTMLButtonElement>('[aria-label="Matches"]');
+    const matches = view.el.querySelector<HTMLButtonElement>('[aria-label^="Saved"]');
     act(() => matches?.click());
     expect(view.el.textContent).toContain(first);
 
@@ -63,6 +63,31 @@ describe('swipe deck', () => {
     });
     expect(view.el.textContent).toContain('No cars match');
     expect(view.el.textContent).toContain('0 of');
+    view.cleanup();
+  });
+
+  it('does not swipe from the board', () => {
+    const view = renderApp();
+    const first = view.el.querySelector('h1')?.textContent ?? '';
+    const board = [...view.el.querySelectorAll('button')].find((button) => button.textContent === 'Board');
+    act(() => board?.click());
+    act(() => {
+      window.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }));
+    });
+    const swipe = [...view.el.querySelectorAll('button')].find((button) => button.textContent === 'Swipe');
+    act(() => swipe?.click());
+    expect(view.el.querySelector('h1')?.textContent).toBe(first);
+    view.cleanup();
+  });
+
+  it('removes one saved car', () => {
+    const view = renderApp();
+    const first = view.el.querySelector('h1')?.textContent ?? '';
+    act(() => view.el.querySelector<HTMLButtonElement>('[aria-label="Like"]')?.click());
+    act(() => view.el.querySelector<HTMLButtonElement>('[aria-label^="Saved"]')?.click());
+    expect(view.el.textContent).toContain(first);
+    act(() => view.el.querySelector<HTMLButtonElement>('[aria-label^="Remove "]')?.click());
+    expect(view.el.textContent).not.toContain(first);
     view.cleanup();
   });
 });

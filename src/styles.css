@@ -118,6 +118,10 @@ button, a { font: inherit; }
 
 .card.dragging { transition: none; }
 
+@media (prefers-reduced-motion: reduce) {
+  .card { transition: none; }
+}
+
 .card-back {
   position: absolute;
   top: 38px;
@@ -163,6 +167,8 @@ button, a { font: inherit; }
   pointer-events: none;
 }
 
+.photo-missing img { visibility: hidden; }
+
 .photo-missing::after {
   content: "Photo left with the ad";
   position: absolute;
@@ -193,22 +199,35 @@ button, a { font: inherit; }
   position: absolute;
   left: 12px;
   right: 12px;
-  top: 10px;
+  top: 4px;
+  z-index: 3;
   display: flex;
   gap: 4px;
 }
 
 .dot {
+  position: relative;
   flex: 1;
-  height: 4px;
+  height: 24px;
   border: 0;
   border-radius: 99px;
-  background: rgba(255, 255, 255, 0.45);
+  background: transparent;
   padding: 0;
   cursor: pointer;
 }
 
-.dot.on { background: white; }
+.dot::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 8px;
+  height: 4px;
+  border-radius: 99px;
+  background: rgba(255, 255, 255, 0.45);
+}
+
+.dot.on::before { background: white; }
 
 .bio { padding: 14px 16px 16px; }
 
@@ -333,6 +352,18 @@ button, a { font: inherit; }
 .likes-head button, .ghost { color: #ffd0d8; }
 
 .likes ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+
+.likes li { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
+
+.likes li .forget {
+  width: auto;
+  border: 0;
+  background: transparent;
+  color: #ffd0d8;
+  padding: 0 4px 2px;
+  font-size: 13px;
+  cursor: pointer;
+}
 
 .likes li button {
   width: 100%;

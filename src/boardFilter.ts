@@ -20,6 +20,8 @@ const TRUCKS = new Set([
   'Dakota',
   'Avalanche',
   'Ram 1500',
+  'RAM 1500',
+  '1500',
   'Tacoma',
   'Tundra',
   'Ranger',
@@ -44,6 +46,7 @@ function haystack(car: Car): string {
     car.drive,
     car.verdict,
     car.drivetrain,
+    car.vin,
     truck,
   ].join(' ').toLowerCase();
 }

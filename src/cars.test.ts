@@ -1,4 +1,5 @@
 import { CARS, MARKET_NOTES, YEAR_RECORDS } from './cars';
+import { vinCheckDigitOk } from './vin';
 
 const phone = /\b(?:\+?1[-.\s]*)?(?:\(?\d{3}\)?[-.\s]*)\d{3}[-.\s]*\d{4}\b/;
 
@@ -19,6 +20,7 @@ describe('shortlist', () => {
         car.listingUrl.startsWith('https://www.allenhonda.com/')
       ).toBe(true);
       expect(car.vin).toMatch(/^[A-HJ-NPR-Z0-9]{17}$/);
+      expect(vinCheckDigitOk(car.vin)).toBe(true);
       expect(car.photos[0]?.startsWith('https://')).toBe(true);
       expect(car.why.length).toBeGreaterThan(40);
       expect(car.watch.length).toBeGreaterThan(0);
@@ -49,8 +51,7 @@ describe('shortlist', () => {
     expect(grades.has('better') || grades.has('typical')).toBe(true);
   });
 
-  it('only keeps the reliable nameplates', () => {
-    const allowed = new Set(['Honda', 'Toyota']);
+  it('stays inside the driving circle', () => {
     const near = ['Katy, TX', 'Fulshear, TX', 'College Station, TX', 'Bryan, TX', 'Navasota, TX', 'Sugar Land, TX', 'Richmond, TX', 'Rosenberg, TX', 'Brookshire, TX', 'Houston, TX', 'Bellaire, TX'];
     const models = new Set(CARS.map((car) => car.model));
     expect(models.size).toBeGreaterThan(15);

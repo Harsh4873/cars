@@ -1,7 +1,9 @@
 import { useEffect, useRef, useState, type PointerEvent } from 'react';
 import { CARS, CHECKED_ON, MARKET_NOTES, YEAR_RECORDS, type Car, type YearGrade } from './cars';
+import { vinCheckDigitOk } from './vin';
 import {
   decide,
+  forget,
   likes,
   miles,
   money,
@@ -21,10 +23,12 @@ export default function App() {
   const [board, setBoard] = useState(false);
   const [sheet, setSheet] = useState<Car | 'guide' | null>(null);
   const [photo, setPhoto] = useState(0);
+  const [failedPhoto, setFailedPhoto] = useState<string | null>(null);
   const [drag, setDrag] = useState({ x: 0, y: 0, active: false });
   const origin = useRef<{ x: number; y: number } | null>(null);
   const offset = useRef({ x: 0, y: 0 });
   const currentId = useRef<string | undefined>(undefined);
+  const screen = useRef({ sheet: null as Car | 'guide' | null, board: false, likes: false });
 
   const queue = remainingIds(ORDER, history);
   const current = queue[0] ? BY_ID.get(queue[0]) : undefined;
@@ -32,6 +36,9 @@ export default function App() {
     .map((id) => BY_ID.get(id))
     .filter((car): car is Car => Boolean(car));
   currentId.current = current?.id;
+  screen.current = { sheet, board, likes: showLikes };
+  const photoIndex = current && photo < current.photos.length ? photo : 0;
+  const photoSrc = current?.photos[photoIndex];
 
   useEffect(() => {
     setPhoto(0);
@@ -49,15 +56,26 @@ export default function App() {
   useEffect(() => {
     function onKey(event: KeyboardEvent) {
       const target = event.target as HTMLElement | null;
-      if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA')) return;
-      if (event.key === 'ArrowLeft') commit('nope');
-      if (event.key === 'ArrowRight') commit('like');
-      if (event.key === 'ArrowUp' && currentId.current) {
+      const tag = target?.tagName;
+      if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || target?.isContentEditable) return;
+      if (event.key === 'Escape') {
+        setSheet(null);
+        return;
+      }
+      const view = screen.current;
+      if (view.sheet || view.board || view.likes || event.repeat) return;
+      if (event.key === 'ArrowLeft') {
+        event.preventDefault();
+        commit('nope');
+      } else if (event.key === 'ArrowRight') {
+        event.preventDefault();
+        commit('like');
+      } else if (event.key === 'ArrowUp' && currentId.current) {
+        event.preventDefault();
         const car = BY_ID.get(currentId.current);
         if (car) setSheet(car);
-      }
-      if (event.key === 'Escape') setSheet(null);
-      if (event.key === 'z' && (event.metaKey || event.ctrlKey)) {
+      } else if (event.key === 'z' && (event.metaKey || event.ctrlKey)) {
+        event.preventDefault();
         updateHistory((prev) => undo(prev));
       }
     }
@@ -132,7 +150,7 @@ export default function App() {
           <button type="button" className="text-button" onClick={() => setSheet('guide')}>
             Guide
           </button>
-          <button type="button" className="text-button" aria-label="Matches" onClick={() => { setShowLikes(true); setBoard(false); }}>
+          <button type="button" className="text-button" aria-label={saved.length > 0 ? `Saved, ${saved.length}` : 'Saved'} onClick={() => { setShowLikes(true); setBoard(false); }}>
             Saved{saved.length > 0 ? ` ${saved.length}` : ''}
           </button>
         </div>
@@ -144,6 +162,7 @@ export default function App() {
           cars={saved}
           onOpen={(car) => setSheet(car)}
           onBack={() => setShowLikes(false)}
+          onForget={(id) => updateHistory((prev) => forget(prev, id))}
         />
       ) : board ? (
         <Board cars={CARS} onOpen={(car) => setSheet(car)} />
@@ -161,7 +180,7 @@ export default function App() {
             onPointerUp={onPointerUp}
             onPointerCancel={onPointerUp}
           >
-            <div className="photo">
+            <div className={failedPhoto === photoSrc ? 'photo photo-missing' : 'photo'}>
               {current.photos.length > 1 ? (
                 <>
                   <button
@@ -180,24 +199,24 @@ export default function App() {
                   />
                 </>
               ) : null}
-              <img
-                key={current.photos[photo]}
-                src={current.photos[photo]}
-                alt={`${current.year} ${current.make} ${current.model}`}
-                draggable={false}
-                onError={(event) => {
-                  event.currentTarget.style.display = 'none';
-                  event.currentTarget.parentElement?.classList.add('photo-missing');
-                }}
-              />
-              <span className="stamp stamp-like" style={{ opacity: likeOpacity }}>Like</span>
-              <span className="stamp stamp-nope" style={{ opacity: nopeOpacity }}>Nope</span>
+              {photoSrc ? (
+                <img
+                  key={photoSrc}
+                  src={photoSrc}
+                  alt={`${current.year} ${current.make} ${current.model}`}
+                  draggable={false}
+                  onLoad={() => setFailedPhoto((failed) => (failed === photoSrc ? null : failed))}
+                  onError={() => setFailedPhoto(photoSrc)}
+                />
+              ) : null}
+              <span className="stamp stamp-like" style={{ opacity: likeOpacity }} aria-hidden="true">Like</span>
+              <span className="stamp stamp-nope" style={{ opacity: nopeOpacity }} aria-hidden="true">Nope</span>
               <div className="dots" aria-label="Photos">
                 {current.photos.map((src, index) => (
                   <button
                     key={src}
                     type="button"
-                    className={index === photo ? 'dot on' : 'dot'}
+                    className={index === photoIndex ? 'dot on' : 'dot'}
                     aria-label={`Photo ${index + 1}`}
                     onPointerDown={(event) => event.stopPropagation()}
                     onClick={() => setPhoto(index)}
@@ -252,7 +271,10 @@ export default function App() {
           saved={saved.length}
           passed={history.length - saved.length}
           onMatches={() => setShowLikes(true)}
-          onReset={() => updateHistory(() => [])}
+          onReset={() => {
+            if (!window.confirm('Start over clears every like and pass on this account.')) return;
+            updateHistory(() => []);
+          }}
         />
       )}
 
@@ -260,6 +282,45 @@ export default function App() {
       {sheet && sheet !== 'guide' ? <CarSheet car={sheet} onClose={() => setSheet(null)} /> : null}
     </div>
   );
+}
+
+function useDialogFocus<T extends HTMLElement>() {
+  const ref = useRef<T>(null);
+  useEffect(() => {
+    const node = ref.current;
+    if (!node) return;
+    const dialog = node;
+    const previously = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    const focusable = () => Array.from(dialog.querySelectorAll<HTMLElement>(
+      'a[href], button:not([disabled]), input, select, textarea, [tabindex]:not([tabindex="-1"])',
+    ));
+    focusable()[0]?.focus();
+    function onKey(event: KeyboardEvent) {
+      if (event.key !== 'Tab') return;
+      const items = focusable();
+      if (items.length === 0) {
+        event.preventDefault();
+        return;
+      }
+      const first = items[0];
+      const last = items[items.length - 1];
+      if (!first || !last) return;
+      const active = document.activeElement;
+      if (event.shiftKey && (active === first || !dialog.contains(active))) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && (active === last || !dialog.contains(active))) {
+        event.preventDefault();
+        first.focus();
+      }
+    }
+    document.addEventListener('keydown', onKey, true);
+    return () => {
+      document.removeEventListener('keydown', onKey, true);
+      previously?.focus();
+    };
+  }, []);
+  return ref;
 }
 
 function slug(verdict: string): string {
@@ -307,27 +368,27 @@ function Board({ cars, onOpen }: { cars: Car[]; onOpen: (car: Car) => void }) {
           ['seven-lakes', 'Seven Lakes'],
           ['houston', 'Houston'],
         ] as const).map(([place, label]) => (
-          <button key={place} type="button" className={query.place === place ? 'text-button on' : 'text-button'} onClick={() => set({ place: place as Place })}>
+          <button key={place} type="button" className={query.place === place ? 'text-button on' : 'text-button'} aria-pressed={query.place === place} onClick={() => set({ place: place as Place })}>
             {label}
           </button>
         ))}
       </div>
       <div className="filters" role="group" aria-label="Filter by complaint year">
         {(['all', 'better', 'typical', 'worse'] as const).map((key) => (
-          <button key={key} type="button" className={query.grade === key ? 'text-button on' : 'text-button'} onClick={() => set({ grade: key as YearGrade | 'all' })}>
+          <button key={key} type="button" className={query.grade === key ? 'text-button on' : 'text-button'} aria-pressed={query.grade === key} onClick={() => set({ grade: key as YearGrade | 'all' })}>
             {key === 'all' ? 'Any record' : key}
           </button>
         ))}
         {filtering ? <button type="button" className="text-button" onClick={() => setQuery({ text: '', make: '', place: 'all', grade: 'all', sort: 'deck' })}>Clear</button> : null}
       </div>
-      {shown.length === 0 ? <p className="empty">No cars match. Clear the search.</p> : null}
+      {shown.length === 0 ? <p className="empty">No cars match. Clear the filters.</p> : null}
       <ul>
         {shown.map((car) => {
           const record = YEAR_RECORDS[car.id];
           return (
             <li key={car.id}>
               <button type="button" onClick={() => onOpen(car)}>
-                <img src={car.photos[0]} alt="" />
+                <img src={car.photos[0]} alt="" loading="lazy" />
                 <span>
                   <strong>{car.year} {car.make} {car.model} {car.trim}</strong>
                   <em>{money(car.price)} · {miles(car.miles)} · {car.city}</em>
@@ -343,7 +404,7 @@ function Board({ cars, onOpen }: { cars: Car[]; onOpen: (car: Car) => void }) {
   );
 }
 
-function Likes({ cars, onOpen, onBack }: { cars: Car[]; onOpen: (car: Car) => void; onBack: () => void }) {
+function Likes({ cars, onOpen, onBack, onForget }: { cars: Car[]; onOpen: (car: Car) => void; onBack: () => void; onForget: (id: string) => void }) {
   return (
     <main className="likes">
       <div className="likes-head">
@@ -355,11 +416,14 @@ function Likes({ cars, onOpen, onBack }: { cars: Car[]; onOpen: (car: Car) => vo
         {cars.map((car) => (
           <li key={car.id}>
             <button type="button" onClick={() => onOpen(car)}>
-              <img src={car.photos[0]} alt="" />
+              <img src={car.photos[0]} alt="" loading="lazy" />
               <span>
                 <strong>{car.year} {car.make} {car.model}</strong>
                 <em>{money(car.price)} · {miles(car.miles)} · {car.city}</em>
               </span>
+            </button>
+            <button type="button" className="forget" aria-label={`Remove ${car.year} ${car.make} ${car.model}`} onClick={() => onForget(car.id)}>
+              Remove
             </button>
           </li>
         ))}
@@ -380,14 +444,15 @@ function Done({ saved, passed, onMatches, onReset }: { saved: number; passed: nu
 }
 
 function Guide({ onClose }: { onClose: () => void }) {
+  const dialog = useDialogFocus<HTMLElement>();
   return (
     <div className="sheet-wrap" role="presentation" onClick={onClose}>
-      <section className="sheet" role="dialog" aria-label="How these cars were picked" onClick={(event) => event.stopPropagation()}>
+      <section ref={dialog} className="sheet" role="dialog" aria-modal="true" aria-label="How these cars were picked" onClick={(event) => event.stopPropagation()}>
         <header>
           <h2>How these got in the deck</h2>
           <button type="button" onClick={onClose} aria-label="Close">Close</button>
         </header>
-        <p className="sheet-kicker">Snapshot from Craigslist on {CHECKED_ON}. College Station had almost none of the reliable stuff left in this price.</p>
+        <p className="sheet-kicker">Snapshot of the dealer listings checked on {CHECKED_ON}.</p>
         {MARKET_NOTES.map((note) => <p key={note}>{note}</p>)}
       </section>
     </div>
@@ -395,9 +460,10 @@ function Guide({ onClose }: { onClose: () => void }) {
 }
 
 function CarSheet({ car, onClose }: { car: Car; onClose: () => void }) {
+  const dialog = useDialogFocus<HTMLElement>();
   return (
     <div className="sheet-wrap" role="presentation" onClick={onClose}>
-      <section className="sheet" role="dialog" aria-label={`${car.year} ${car.make} ${car.model}`} onClick={(event) => event.stopPropagation()}>
+      <section ref={dialog} className="sheet" role="dialog" aria-modal="true" aria-label={`${car.year} ${car.make} ${car.model}`} onClick={(event) => event.stopPropagation()}>
         <header>
           <h2>{car.year} {car.make} {car.model} {car.trim}</h2>
           <button type="button" onClick={onClose} aria-label="Close">Close</button>
@@ -411,7 +477,7 @@ function CarSheet({ car, onClose }: { car: Car; onClose: () => void }) {
           <div><dt>Owners</dt><dd>{car.owners}</dd></div>
           <div><dt>Title</dt><dd>{car.title}</dd></div>
           <div><dt>Seller</dt><dd>{car.dealer}</dd></div>
-          <div><dt>VIN</dt><dd>{car.vin}</dd></div>
+          <div><dt>VIN</dt><dd>{car.vin}{vinCheckDigitOk(car.vin) ? '' : ' (check digit does not match)'}</dd></div>
           <div><dt>Color</dt><dd>{car.color}</dd></div>
           <div><dt>Drivetrain</dt><dd>{car.drivetrain}</dd></div>
         </dl>

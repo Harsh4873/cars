@@ -17,6 +17,15 @@ describe('board filters', () => {
     const trucks = filterBoard(CARS, { ...base, text: 'truck' });
     expect(trucks.length).toBeGreaterThan(0);
     expect(trucks.every((car) => car.model !== 'Civic')).toBe(true);
+    expect(trucks.some((car) => car.make === 'RAM' && car.model === '1500')).toBe(true);
+    expect(trucks.some((car) => car.make === 'Dodge' && car.model === 'RAM 1500')).toBe(true);
+  });
+
+  it('finds a car by VIN', () => {
+    const car = CARS[0];
+    expect(car).toBeTruthy();
+    const found = filterBoard(CARS, { ...base, text: car!.vin.toLowerCase() });
+    expect(found.map((item) => item.id)).toContain(car!.id);
   });
 
   it('filters by place and make together', () => {
