@@ -169,7 +169,7 @@ export default function App() {
       ) : current ? (
         <main className="stage">
           <p className="lede">
-            {queue.length} left · leases, certified, and newer used · checked {CHECKED_ON}
+            {queue.length} left · sedans, about $15k to $22k · checked {CHECKED_ON}
           </p>
           {queue[1] ? <div className="card card-back" aria-hidden="true" /> : null}
           <article

@@ -10,14 +10,13 @@ const base = {
 };
 
 describe('board filters', () => {
-  it('searches make, model, and truck', () => {
-    const civics = filterBoard(CARS, { ...base, text: 'civic' });
-    expect(civics.length).toBeGreaterThan(0);
-    expect(civics.every((car) => car.model.toLowerCase().includes('civic'))).toBe(true);
-    const trucks = filterBoard(CARS, { ...base, text: 'truck' });
-    expect(trucks.length).toBeGreaterThan(0);
-    expect(trucks.every((car) => car.model !== 'Civic')).toBe(true);
-    expect(trucks.some((car) => car.model === 'Tacoma')).toBe(true);
+  it('searches make and model', () => {
+    const corollas = filterBoard(CARS, { ...base, text: 'corolla' });
+    expect(corollas.length).toBeGreaterThan(0);
+    expect(corollas.every((car) => car.model.toLowerCase().includes('corolla'))).toBe(true);
+    const jettas = filterBoard(CARS, { ...base, text: 'jetta' });
+    expect(jettas.length).toBeGreaterThan(0);
+    expect(jettas.every((car) => car.model !== 'Corolla')).toBe(true);
   });
 
   it('finds a car by VIN', () => {
