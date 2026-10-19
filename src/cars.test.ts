@@ -7,11 +7,11 @@ describe('shortlist', () => {
   it('stays in the newer price band with real listings', () => {
     expect(CARS.length).toBeGreaterThanOrEqual(12);
     for (const car of CARS) {
-      expect(car.price).toBeGreaterThanOrEqual(14000);
-      expect(car.price).toBeLessThanOrEqual(23000);
-      expect(car.miles).toBeGreaterThanOrEqual(0);
-      expect(car.miles).toBeLessThanOrEqual(120000);
-      expect(car.year).toBeGreaterThanOrEqual(2018);
+      expect(car.price).toBeGreaterThanOrEqual(18000);
+      expect(car.price).toBeLessThanOrEqual(26000);
+      expect(car.miles).toBeGreaterThan(0);
+      expect(car.miles).toBeLessThanOrEqual(45000);
+      expect(car.year).toBeGreaterThanOrEqual(2023);
       expect(car.dealer.toLowerCase()).not.toContain('cash only');
       expect(car.photos.length).toBeGreaterThan(0);
       expect(car.photos.length).toBeLessThanOrEqual(8);
