@@ -14,9 +14,9 @@ describe('board filters', () => {
     const corollas = filterBoard(CARS, { ...base, text: 'corolla' });
     expect(corollas.length).toBeGreaterThan(0);
     expect(corollas.every((car) => car.model.toLowerCase().includes('corolla'))).toBe(true);
-    const jettas = filterBoard(CARS, { ...base, text: 'jetta' });
-    expect(jettas.length).toBeGreaterThan(0);
-    expect(jettas.every((car) => car.model !== 'Corolla')).toBe(true);
+    const camrys = filterBoard(CARS, { ...base, text: 'camry' });
+    expect(camrys.length).toBeGreaterThan(0);
+    expect(camrys.every((car) => car.model !== 'Corolla')).toBe(true);
   });
 
   it('finds a car by VIN', () => {

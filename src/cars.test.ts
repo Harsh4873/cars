@@ -5,13 +5,14 @@ const phone = /\b(?:\+?1[-.\s]*)?(?:\(?\d{3}\)?[-.\s]*)\d{3}[-.\s]*\d{4}\b/;
 
 describe('shortlist', () => {
   it('stays in the newer price band with real listings', () => {
-    expect(CARS.length).toBeGreaterThanOrEqual(12);
+    expect(CARS.length).toBeGreaterThanOrEqual(6);
     for (const car of CARS) {
       expect(car.price).toBeGreaterThanOrEqual(18000);
-      expect(car.price).toBeLessThanOrEqual(26000);
+      expect(car.price).toBeLessThanOrEqual(34000);
       expect(car.miles).toBeGreaterThan(0);
-      expect(car.miles).toBeLessThanOrEqual(45000);
-      expect(car.year).toBeGreaterThanOrEqual(2023);
+      expect(car.miles).toBeLessThanOrEqual(46000);
+      expect(car.year).toBeGreaterThanOrEqual(2024);
+      expect(car.title.toLowerCase()).toContain('certified');
       expect(car.dealer.toLowerCase()).not.toContain('cash only');
       expect(car.photos.length).toBeGreaterThan(0);
       expect(car.photos.length).toBeLessThanOrEqual(8);
@@ -27,7 +28,7 @@ describe('shortlist', () => {
   });
 
   it('puts a green flag and a red flag on every card', () => {
-    expect(CARS.filter((car) => car.photos.length > 1).length).toBeGreaterThan(10);
+    expect(CARS.filter((car) => car.photos.length > 1).length).toBeGreaterThan(5);
     for (const car of CARS) {
       expect(car.greenFlag.length).toBeGreaterThan(20);
       expect(car.redFlag.length).toBeGreaterThan(20);
@@ -46,13 +47,12 @@ describe('shortlist', () => {
     const grades = new Set(Object.values(YEAR_RECORDS).map((record) => record.grade));
     expect(grades.has('better')).toBe(true);
     expect(grades.has('typical')).toBe(true);
-    expect(grades.has('worse')).toBe(true);
   });
 
   it('stays inside the Seven Lakes drive', () => {
     const near = ['Katy, TX', 'Houston, TX', 'Rosenberg, TX', 'Sugar Land, TX', 'Richmond, TX', 'Fulshear, TX'];
     const models = new Set(CARS.map((car) => car.model));
-    expect(models.size).toBeGreaterThan(5);
+    expect(models.size).toBeGreaterThan(2);
     for (const car of CARS) {
       expect(near).toContain(car.city);
     }

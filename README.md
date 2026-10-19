@@ -2,4 +2,4 @@
 
 A swipe deck of newer cars near Seven Lakes High School, published at `https://harsh.bet/cars/`.
 
-The deck is sedan listings checked on October 19, 2026. Asking prices run about $19,000 to $25,000, and every car has under 45,000 miles. Every store is about 10 to 15 minutes from Seven Lakes, in Katy. Each card has the asking price, miles, the seller's claims, and the known weak spots for that model. Passing and matching save in this browser immediately. Approved owners can sign in with Google to sync history across devices through Firestore; see [Firebase setup](FIREBASE_SETUP.md).
+The deck is certified sedans checked on October 19, 2026. Every car is a manufacturer certified pre-owned sedan with a written warranty, from Toyota of Katy or Fort Bend Kia. Asking prices run about $21,000 to $33,000. Each card has the asking price, miles, the warranty that comes with that certification, and what is not included. Passing and matching save in this browser immediately. Approved owners can sign in with Google to sync history across devices through Firestore; see [Firebase setup](FIREBASE_SETUP.md).
