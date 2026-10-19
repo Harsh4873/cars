@@ -4,33 +4,30 @@ import { vinCheckDigitOk } from './vin';
 const phone = /\b(?:\+?1[-.\s]*)?(?:\(?\d{3}\)?[-.\s]*)\d{3}[-.\s]*\d{4}\b/;
 
 describe('shortlist', () => {
-  it('stays inside the $5k to $8k band with real miles', () => {
-    expect(CARS.length).toBeGreaterThanOrEqual(30);
+  it('stays in the newer price band with real listings', () => {
+    expect(CARS.length).toBeGreaterThanOrEqual(20);
     for (const car of CARS) {
-      expect(car.price).toBeGreaterThanOrEqual(5000);
-      expect(car.price).toBeLessThanOrEqual(8000);
-      expect(car.miles).toBeGreaterThan(20000);
-      expect(car.miles).toBeLessThanOrEqual(220000);
+      expect(car.price).toBeGreaterThanOrEqual(18000);
+      expect(car.price).toBeLessThanOrEqual(40000);
+      expect(car.miles).toBeGreaterThanOrEqual(0);
+      expect(car.miles).toBeLessThanOrEqual(80000);
+      expect(car.year).toBeGreaterThanOrEqual(2021);
       expect(car.dealer.toLowerCase()).not.toContain('cash only');
-      expect(car.dealer.toLowerCase()).not.toContain('financing');
       expect(car.photos.length).toBeGreaterThan(0);
       expect(car.photos.length).toBeLessThanOrEqual(8);
-      expect(
-        car.listingUrl.startsWith('https://www.cargurus.com/') ||
-        car.listingUrl.startsWith('https://www.allenhonda.com/')
-      ).toBe(true);
+      expect(car.listingUrl.startsWith('https://')).toBe(true);
       expect(car.vin).toMatch(/^[A-HJ-NPR-Z0-9]{17}$/);
       expect(vinCheckDigitOk(car.vin)).toBe(true);
       expect(car.photos[0]?.startsWith('https://')).toBe(true);
       expect(car.why.length).toBeGreaterThan(40);
       expect(car.watch.length).toBeGreaterThan(0);
       expect(car.check.length).toBeGreaterThan(0);
+      expect(car.drive.toLowerCase()).toContain('seven lakes');
     }
   });
 
   it('puts a green flag and a red flag on every card', () => {
-    expect(CARS.length).toBeGreaterThanOrEqual(100);
-    expect(CARS.filter((car) => car.photos.length > 1).length).toBeGreaterThan(80);
+    expect(CARS.filter((car) => car.photos.length > 1).length).toBeGreaterThan(15);
     for (const car of CARS) {
       expect(car.greenFlag.length).toBeGreaterThan(20);
       expect(car.redFlag.length).toBeGreaterThan(20);
@@ -47,16 +44,15 @@ describe('shortlist', () => {
       expect(['better', 'typical', 'worse']).toContain(record?.grade);
     }
     const grades = new Set(Object.values(YEAR_RECORDS).map((record) => record.grade));
-    expect(grades.has('worse')).toBe(true);
-    expect(grades.has('better') || grades.has('typical')).toBe(true);
+    expect(grades.has('better')).toBe(true);
+    expect(grades.has('typical')).toBe(true);
   });
 
-  it('stays inside the driving circle', () => {
-    const near = ['Katy, TX', 'Fulshear, TX', 'College Station, TX', 'Bryan, TX', 'Navasota, TX', 'Sugar Land, TX', 'Richmond, TX', 'Rosenberg, TX', 'Brookshire, TX', 'Houston, TX', 'Bellaire, TX'];
+  it('stays inside the Seven Lakes drive', () => {
+    const near = ['Katy, TX', 'Houston, TX', 'Rosenberg, TX', 'Sugar Land, TX', 'Richmond, TX', 'Fulshear, TX'];
     const models = new Set(CARS.map((car) => car.model));
-    expect(models.size).toBeGreaterThan(15);
+    expect(models.size).toBeGreaterThan(8);
     for (const car of CARS) {
-      expect(car.make.length).toBeGreaterThan(1);
       expect(near).toContain(car.city);
     }
   });

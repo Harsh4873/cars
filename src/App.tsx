@@ -169,7 +169,7 @@ export default function App() {
       ) : current ? (
         <main className="stage">
           <p className="lede">
-            {queue.length} left · $5k to $8k · checked {CHECKED_ON}
+            {queue.length} left · leases, certified, and newer used · checked {CHECKED_ON}
           </p>
           {queue[1] ? <div className="card card-back" aria-hidden="true" /> : null}
           <article
@@ -364,8 +364,8 @@ function Board({ cars, onOpen }: { cars: Car[]; onOpen: (car: Car) => void }) {
       <div className="filters" role="group" aria-label="Filter by place">
         {([
           ['all', 'Everywhere'],
-          ['campus', 'Texas A&M'],
-          ['seven-lakes', 'Seven Lakes'],
+          ['katy', 'Katy'],
+          ['fort-bend', 'Richmond area'],
           ['houston', 'Houston'],
         ] as const).map(([place, label]) => (
           <button key={place} type="button" className={query.place === place ? 'text-button on' : 'text-button'} aria-pressed={query.place === place} onClick={() => set({ place: place as Place })}>
@@ -452,7 +452,7 @@ function Guide({ onClose }: { onClose: () => void }) {
           <h2>How these got in the deck</h2>
           <button type="button" onClick={onClose} aria-label="Close">Close</button>
         </header>
-        <p className="sheet-kicker">Snapshot of the dealer listings checked on {CHECKED_ON}.</p>
+        <p className="sheet-kicker">Dealer inventory checked on {CHECKED_ON}. Every car is about 10 to 25 minutes from Seven Lakes High School.</p>
         {MARKET_NOTES.map((note) => <p key={note}>{note}</p>)}
       </section>
     </div>

@@ -17,8 +17,7 @@ describe('board filters', () => {
     const trucks = filterBoard(CARS, { ...base, text: 'truck' });
     expect(trucks.length).toBeGreaterThan(0);
     expect(trucks.every((car) => car.model !== 'Civic')).toBe(true);
-    expect(trucks.some((car) => car.make === 'RAM' && car.model === '1500')).toBe(true);
-    expect(trucks.some((car) => car.make === 'Dodge' && car.model === 'RAM 1500')).toBe(true);
+    expect(trucks.some((car) => car.model === 'Tacoma')).toBe(true);
   });
 
   it('finds a car by VIN', () => {
@@ -29,9 +28,9 @@ describe('board filters', () => {
   });
 
   it('filters by place and make together', () => {
-    const campus = filterBoard(CARS, { ...base, place: 'campus' });
-    expect(campus.length).toBeGreaterThan(0);
-    expect(campus.every((car) => placeOf(car) === 'campus')).toBe(true);
+    const katy = filterBoard(CARS, { ...base, place: 'katy' });
+    expect(katy.length).toBeGreaterThan(0);
+    expect(katy.every((car) => placeOf(car) === 'katy')).toBe(true);
     const make = makesIn(CARS)[0];
     const narrowed = filterBoard(CARS, { ...base, place: 'houston', make });
     expect(narrowed.every((car) => car.make === make && placeOf(car) === 'houston')).toBe(true);

@@ -1,6 +1,6 @@
 import { YEAR_RECORDS, type Car, type YearGrade } from './cars';
 
-export type Place = 'all' | 'campus' | 'seven-lakes' | 'houston';
+export type Place = 'all' | 'katy' | 'fort-bend' | 'houston';
 export type BoardSort = 'deck' | 'price' | 'miles' | 'newest';
 
 export type BoardQuery = {
@@ -29,9 +29,16 @@ const TRUCKS = new Set([
 ]);
 
 export function placeOf(car: Car): Exclude<Place, 'all'> {
-  if (car.drive.includes('Texas A&M')) return 'campus';
-  if (car.drive.includes('Seven Lakes')) return 'seven-lakes';
-  return 'houston';
+  if (car.city.startsWith('Houston')) return 'houston';
+  if (
+    car.city.startsWith('Rosenberg') ||
+    car.city.startsWith('Sugar Land') ||
+    car.city.startsWith('Richmond') ||
+    car.city.startsWith('Fulshear')
+  ) {
+    return 'fort-bend';
+  }
+  return 'katy';
 }
 
 function haystack(car: Car): string {

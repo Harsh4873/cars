@@ -257,8 +257,8 @@ button, a { font: inherit; }
   margin-bottom: 8px;
 }
 
-.verdict-best-bet, .verdict-better { background: #e8fff3; color: #0d7a45; }
-.verdict-strong, .verdict-typical { background: #e7f0ff; color: #1d4e89; }
+.verdict-best-bet, .verdict-better, .verdict-certified, .verdict-new-lease, .verdict-new { background: #e8fff3; color: #0d7a45; }
+.verdict-strong, .verdict-typical, .verdict-nearly-new, .verdict-newer-used { background: #e7f0ff; color: #1d4e89; }
 .verdict-first-owner { background: #fff4d8; color: #8a5a00; }
 .verdict-check-first, .verdict-worse { background: #ffe8ee; color: #a11d3a; }
 .verdict-on-campus { background: #efe7ff; color: #5b3d8a; }
